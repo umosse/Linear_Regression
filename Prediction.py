@@ -1,5 +1,4 @@
 import pandas as pd
-import sys
 from Training import estimate_price
 
 

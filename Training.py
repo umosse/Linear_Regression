@@ -54,7 +54,8 @@ def estimate_price(theta0, theta1, mileage) -> float:
 
 def gradient_step(km, price, theta0, theta1, lr) -> tuple[float, float]:
     """
-
+    Computes one gradient descent update for theta0 and theta1
+    Returns tmp_theta0 and tmp_theta1 computed from current thetas
     """
     m = len(km)
     errors = [estimate_price(theta0, theta1, km[i]) - price[i] for i in range(m)]
@@ -70,6 +71,7 @@ def gradient_step(km, price, theta0, theta1, lr) -> tuple[float, float]:
 
 def normalize(km) -> list[float]:
     """
+    Scales km values to [0, 1] using min-max normalization
     """
     low = min(km)
     high = max(km)
@@ -133,13 +135,29 @@ def plot_data(km, price, theta0, theta1) -> None:
     plt.show()
 
 
+def r_squared(km, price, theta0, theta1) -> float:
+    """
+    Computes the R_squared score which shows how well the regression line fits the data.
+    1.0 = perfect, 0.0 = as good as computing the average
+    """
+
+    average_price = sum(price) / len(price)
+
+    sum_of_squares_res = sum((price[i] - estimate_price(theta0, theta1, km[i])) ** 2 for i in range(len(km)))
+    tot_sum_of_squares = sum((price[i] - average_price) ** 2 for i in range(len(km)))
+
+    return 1 - (sum_of_squares_res / tot_sum_of_squares)
+
+
 def main():
     data_set = load("data.csv")
     if data_set is None:
         sys.exit(1)
     theta0, theta1 = train(data_set["km"], data_set["price"], lr=0.1, iterations=1000)
     save_thetas(theta0, theta1, "thetas.csv")
-    print(theta0, theta1)
+    score = r_squared(data_set["km"], data_set["price"], theta0, theta1)
+    print("Precision score :", score)
+    print("Thetas :", theta0, theta1)
     plot_data(data_set["km"], data_set["price"], theta0, theta1)
 
 
